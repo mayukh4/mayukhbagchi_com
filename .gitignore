@@ -9,6 +9,7 @@ site/.env.*
 # Cursor/AI tooling and private notes
 .cursor/
 CLAUDE.md
+YOUTUBE_SETUP.md
 
 # macOS
 .DS_Store
