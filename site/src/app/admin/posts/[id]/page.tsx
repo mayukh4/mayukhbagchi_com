@@ -48,8 +48,16 @@ export default function EditPost() {
     
     setSaving(true);
     try {
+      // Guard: require slug before publishing
+      if (status === 'published' && !post.slug) {
+        alert('Please set a slug before publishing.');
+        setSaving(false);
+        return;
+      }
+      const cleanSlug = (post.slug || '').trim();
       const updatedPost = { 
         ...post, 
+        slug: cleanSlug,
         status: status || post.status,
         published_at: status === 'published' ? new Date().toISOString() : post.published_at,
         needs_review: false
@@ -63,8 +71,12 @@ export default function EditPost() {
       
       setPost(updatedPost);
       
-      if (status === 'published' && post.slug) {
-        router.push(`/videos/${post.slug}`);
+      if (status === 'published') {
+        if (!updatedPost.slug) {
+          alert('Please set a slug before publishing.');
+        } else {
+          router.push(`/blogs/${encodeURIComponent(updatedPost.slug)}`);
+        }
       } else {
         alert('Post saved successfully!');
       }
@@ -177,7 +189,7 @@ export default function EditPost() {
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Link 
-            href="/admin" 
+            href="/admin/dashboard" 
             className="inline-flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors text-sm"
           >
             ← Back to Dashboard
@@ -232,7 +244,7 @@ export default function EditPost() {
         )}
         {post.slug && (
           <a
-            href={`/videos/${post.slug}`}
+            href={`/blogs/${encodeURIComponent(post.slug.trim())}`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 border border-muted/40 rounded hover:bg-muted/20"

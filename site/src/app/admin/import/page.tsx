@@ -149,7 +149,7 @@ export default function ImportVideos() {
         <div>
           <div className="flex items-center gap-4 mb-2">
             <Link 
-              href="/admin"
+              href="/admin/dashboard"
               className="inline-flex items-center gap-2 text-foreground/70 hover:text-foreground transition-colors"
             >
               ← Back to Dashboard

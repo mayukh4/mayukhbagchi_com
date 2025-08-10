@@ -738,6 +738,54 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         }
       }
 
+      // Graticule (latitude/longitude lines)
+      ctx.save();
+      ctx.strokeStyle = isAbout ? "rgba(140, 210, 255, 0.45)" : "rgba(100, 200, 255, 0.16)";
+      ctx.lineWidth = isAbout ? 1.0 : 0.7;
+
+      // Parallels (latitude)
+      for (let lat = -60; lat <= 60; lat += 30) {
+        ctx.beginPath();
+        let started = false;
+        for (let lon = -180; lon <= 180; lon += 6) {
+          let v = latLonToVec3(lat, lon);
+          v = rotateY(v, rot);
+          v = rotateX(v, tilt);
+          const p = orthographicProject(v, cx, cy, radius);
+          if (p.front) {
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else { ctx.lineTo(p.x, p.y); }
+          } else if (started) {
+            ctx.stroke();
+            started = false;
+            ctx.beginPath();
+          }
+        }
+        if (started) ctx.stroke();
+      }
+
+      // Meridians (longitude)
+      for (let lon = -150; lon <= 150; lon += 30) {
+        ctx.beginPath();
+        let started = false;
+        for (let lat = -90; lat <= 90; lat += 6) {
+          let v = latLonToVec3(lat, lon);
+          v = rotateY(v, rot);
+          v = rotateX(v, tilt);
+          const p = orthographicProject(v, cx, cy, radius);
+          if (p.front) {
+            if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+            else { ctx.lineTo(p.x, p.y); }
+          } else if (started) {
+            ctx.stroke();
+            started = false;
+            ctx.beginPath();
+          }
+        }
+        if (started) ctx.stroke();
+      }
+      ctx.restore();
+
       // Contact/default/outreach embellishments: draw VLBI stations and baselines too
       if (!isAbout) {
         // Project telescope stations

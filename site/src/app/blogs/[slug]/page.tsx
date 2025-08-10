@@ -5,33 +5,46 @@ import ReactMarkdown from 'react-markdown';
 
 type Params = { params: { slug: string } };
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const sb = supabaseAnon();
-  const { data } = await sb.from('video_posts').select('title,seo_title,seo_description,seo_keywords,hero_image').eq('slug', slug).single();
-  
-  if (!data) return { title: 'Video Not Found' };
+  const { data } = await sb
+    .from('video_posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
 
-  const title = data.seo_title || data.title || 'Video';
-  const description = data.seo_description || undefined;
-  const keywords = data.seo_keywords || [];
-  const image = data.hero_image;
+  if (!data) {
+    return {
+      title: 'Article Not Found',
+      description: "This article could not be found.",
+      robots: { index: false, follow: false },
+      alternates: { canonical: `https://mayukhbagchi.com/blogs/${slug}` }
+    };
+  }
+
+  const title = (data as any).seo_title || data.title || 'Article';
+  const description = (data as any).seo_description || undefined;
+  const keywords = ((data as any).seo_keywords || []).concat(['Mayukh Bagchi','astronomy','astrophysics','space']);
+  const image = (data as any).hero_image;
   const canonical = `https://mayukhbagchi.com/blogs/${slug}`;
 
   return {
     title,
     description,
-    keywords: keywords.concat(['Mayukh Bagchi', 'astronomy', 'astrophysics', 'space']),
-    alternates: {
-      canonical
-    },
+    keywords,
+    alternates: { canonical },
     openGraph: {
       title,
       description,
       type: 'article',
       url: canonical,
+      publishedTime: (data as any).published_at || undefined,
       images: image ? [{ url: image, width: 1200, height: 630, alt: title }] : undefined,
       siteName: 'Mayukh Bagchi - Astronomy Research',
+      authors: ['Mayukh Bagchi']
     },
     twitter: {
       card: 'summary_large_image',
@@ -45,7 +58,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 export default async function VideoPost({ params }: Params) {
   const { slug } = await params;
   const sb = supabaseAnon();
-  const { data: post } = await sb.from('video_posts').select('id,title,slug,content_md,youtube_id,created_at').eq('slug', slug).eq('status', 'published').single();
+  const { data: post } = await sb
+    .from('video_posts')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
   
   if (!post) {
     return (
@@ -56,8 +74,9 @@ export default async function VideoPost({ params }: Params) {
     );
   }
 
-  // Generate structured data for the video
-  const structuredData = {
+  // Generate structured data: VideoObject if YouTube present, otherwise Article
+  const isVideo = Boolean(post.youtube_id);
+  const structuredData = isVideo ? {
     "@context": "https://schema.org",
     "@type": "VideoObject",
     "name": post.title,
@@ -67,26 +86,19 @@ export default async function VideoPost({ params }: Params) {
     "duration": post.video_length_seconds ? `PT${post.video_length_seconds}S` : undefined,
     "embedUrl": post.youtube_id ? `https://www.youtube.com/embed/${post.youtube_id}` : undefined,
     "contentUrl": post.youtube_id ? `https://www.youtube.com/watch?v=${post.youtube_id}` : undefined,
-    "author": {
-      "@type": "Person",
-      "name": "Mayukh Bagchi",
-      "url": "https://mayukhbagchi.com"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Mayukh Bagchi - Astronomy Research",
-      "url": "https://mayukhbagchi.com",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://mayukhbagchi.com/logo.png"
-      }
-    },
+    "author": { "@type": "Person", "name": "Mayukh Bagchi", "url": "https://mayukhbagchi.com" },
+    "publisher": { "@type": "Organization", "name": "Mayukh Bagchi - Astronomy Research", "url": "https://mayukhbagchi.com", "logo": { "@type": "ImageObject", "url": "https://mayukhbagchi.com/logo.png" } },
     "keywords": post.seo_keywords?.join(', ') || '',
-    "interactionStatistic": post.youtube_view_count ? {
-      "@type": "InteractionCounter",
-      "interactionType": "http://schema.org/WatchAction",
-      "userInteractionCount": post.youtube_view_count
-    } : undefined
+    "interactionStatistic": post.youtube_view_count ? { "@type": "InteractionCounter", "interactionType": "http://schema.org/WatchAction", "userInteractionCount": post.youtube_view_count } : undefined
+  } : {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.title,
+    "datePublished": post.published_at || post.created_at,
+    "image": post.hero_image ? [post.hero_image] : undefined,
+    "author": { "@type": "Person", "name": "Mayukh Bagchi" },
+    "publisher": { "@type": "Organization", "name": "Mayukh Bagchi - Astronomy Research", "logo": { "@type": "ImageObject", "url": "https://mayukhbagchi.com/logo.png" } },
+    "keywords": post.seo_keywords?.join(', ') || ''
   };
 
   return (

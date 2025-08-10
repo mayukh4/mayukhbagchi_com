@@ -199,7 +199,7 @@ async function sendNotification({ videoId, title, slug, action }: {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `*${title}*\n\n*Actions:*\n• <${baseUrl}/videos/${slug}|View Post>\n• <${baseUrl}/admin/posts?filter=needsReview|Review & Edit>\n• <https://youtube.com/watch?v=${videoId}|View on YouTube>`
+                text: `*${title}*\n\n*Actions:*\n• <${baseUrl}/blogs/${slug}|View Post>\n• <${baseUrl}/admin/posts?filter=needsReview|Review & Edit>\n• <https://youtube.com/watch?v=${videoId}|View on YouTube>`
               }
             }
           ]
