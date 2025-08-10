@@ -1,0 +1,106 @@
+{
+    "conference_and_workshop_locations": [
+      {
+        "year": 2022,
+        "event": "CASCA 2022 AGM",
+        "location": "Online (hosted by University of Waterloo)",
+        "city": "Waterloo",
+        "province_state": "Ontario",
+        "country": "Canada",
+        "type": "Conference",
+        "presentation_type": "Poster",
+        "title": "A statistical analysis of the polarization properties of dense cores. Is there any indication that large-scale magnetic fields shape the formation of these cores?",
+        "description": "Annual General Meeting of the Canadian Astronomical Society"
+      },
+      {
+        "year": 2022,
+        "month": "July",
+        "event": "MIT Haystack Observatory Visit",
+        "location": "Westford",
+        "city": "Westford",
+        "province_state": "Massachusetts",
+        "country": "United States",
+        "type": "Collaborative Visit",
+        "description": "Visit to collaborators to discuss the Balloon-borne VLBI Experiment (BVEX) project"
+      },
+      {
+        "year": 2022,
+        "event": "CASPER 2022 Workshop",
+        "location": "Cagliari",
+        "city": "Cagliari",
+        "province_state": "Sardinia",
+        "country": "Italy",
+        "type": "Workshop",
+        "description": "A week-long workshop hosted by INAF (National Institute for Astrophysics) for The Collaboration for Astronomy Signal Processing and Electronics Research (CASPER). Hands-on experience working with the latest generation of FPGAs in radio astronomy."
+      },
+      {
+        "year": 2023,
+        "event": "Scientific Ballooning Technologies Workshop",
+        "location": "Minneapolis",
+        "city": "Minneapolis",
+        "province_state": "Minnesota",
+        "country": "United States",
+        "type": "Conference",
+        "presentation_type": "Talk",
+        "title": "Technical Challenges in Balloon-borne VLBI",
+        "description": "Conference that brought the scientific ballooning community together to discuss the latest developments and updates on the current ballooning projects"
+      },
+      {
+        "year": 2023,
+        "event": "CASCA 2023 AGM",
+        "location": "Penticton",
+        "city": "Penticton",
+        "province_state": "British Columbia",
+        "country": "Canada",
+        "type": "Conference",
+        "presentation_type": "Talk",
+        "title": "BVEX: Balloon-borne VLBI EXperiment",
+        "description": "Annual General Meeting of the Canadian Astronomical Society"
+      },
+      {
+        "year": 2023,
+        "event": "CSA Stratos Campaign",
+        "location": "Timmins",
+        "city": "Timmins",
+        "province_state": "Ontario",
+        "country": "Canada",
+        "type": "Field Campaign",
+        "description": "Flew BVEXTracker, a high-cadence compact position tracking sensor package on a CNES gondola. The goal was to characterize the vibrational environment of the gondola and develop position reconstruction algorithm for the main BVEX flight."
+      },
+      {
+        "year": 2024,
+        "event": "20th NRAO Synthesis Imaging Workshop",
+        "location": "Socorro",
+        "city": "Socorro",
+        "province_state": "New Mexico",
+        "country": "United States",
+        "type": "Workshop",
+        "description": "Lectures on radio interferometry imaging techniques, data calibration, data cleaning, RFI flagging, etc. Hands-on VLBA data reduction tutorial. VLA site visit and antenna climb."
+      },
+      {
+        "year": 2024,
+        "event": "CASCA 2024 AGM",
+        "location": "Toronto",
+        "city": "Toronto",
+        "province_state": "Ontario",
+        "country": "Canada",
+        "type": "Conference",
+        "presentation_type": "Talk",
+        "title": "An RFSoC-Based Backend and Timing Reference System for Balloon-Borne VLBI Experiment",
+        "description": "Annual General Meeting of the Canadian Astronomical Society"
+      }
+    ],
+    "summary": {
+      "total_locations": 8,
+      "countries_visited": ["Canada", "United States", "Italy"],
+      "provinces_states_visited": ["Ontario", "British Columbia", "Massachusetts", "Minnesota", "New Mexico", "Sardinia"],
+      "cities_visited": ["Waterloo", "Westford", "Cagliari", "Minneapolis", "Penticton", "Timmins", "Socorro", "Toronto"],
+      "event_types": {
+        "conferences": 5,
+        "workshops": 2,
+        "collaborative_visits": 1,
+        "field_campaigns": 1
+      },
+      "years_active": ["2022", "2023", "2024"]
+    }
+  }

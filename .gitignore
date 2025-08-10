@@ -1,0 +1,53 @@
+# ---- Sensitive / Local-only ----
+.env
+.env.*
+!.env.example
+site/.env
+site/.env.*
+!site/.env.example
+
+# Cursor/AI tooling and private notes
+.cursor/
+CLAUDE.md
+
+# macOS
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dependency directories
+node_modules/
+site/node_modules/
+
+# Next.js build output
+.next/
+site/.next/
+out/
+site/out/
+
+# Build / cache
+dist/
+build/
+tmp/
+.tmp/
+.cache/
+.turbo/
+
+# Tooling
+.vercel/
+.pnpm-store/
+.eslintcache
+
+# Editors/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+

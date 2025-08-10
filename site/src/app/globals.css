@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: 10 14% 6%; /* deep navy-ish */
+  --foreground: 210 40% 96%;
+  --muted: 215 16% 27%;
+  --accent: 199 89% 60%; /* cyan accent */
+  --ring: 199 89% 60%;
+}
+
+.light {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  /* Darken muted for better readability in light mode */
+  --muted: 222 15% 35%;
+  --accent: 199 89% 48%;
+  --ring: 199 89% 48%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-muted: hsl(var(--muted));
+  --color-accent: hsl(var(--accent));
+  --ring: hsl(var(--ring));
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-chivo-mono);
+}
+
+html { color-scheme: dark light; }
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Radio dish sweep animation */
+@keyframes dishSweepOnce {
+  0% { transform: rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: rotate(22deg); opacity: 1; }
+  100% { transform: rotate(0deg); opacity: 0.2; }
+}
+.dish-sweep {
+  transform-origin: 12px 12px;
+  animation: dishSweepOnce 900ms ease-out 1;
+}
+
+/* VLBI background gentle motion */
+@keyframes drift {
+  0% { transform: translateX(0px); }
+  50% { transform: translateX(12px); }
+  100% { transform: translateX(0px); }
+}
+
+@keyframes pulseFlow {
+  0% { stroke-opacity: 0.08; }
+  50% { stroke-opacity: 0.16; }
+  100% { stroke-opacity: 0.08; }
+}
+
+.fringe-drift {
+  animation: drift 28s ease-in-out infinite;
+}
+
+.baseline-flow {
+  animation: pulseFlow 6s ease-in-out infinite;
+}
+
+/* Invert the VLBI canvas in light mode so the scene matches the page tone */
+.light .vlbi-canvas {
+  filter: invert(1) hue-rotate(180deg) saturate(1.05) brightness(1.02) contrast(0.96);
+  opacity: 0.92;
+}
+
+/* (removed) edge-fade styles */

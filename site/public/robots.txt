@@ -1,0 +1,47 @@
+# Allow all search engines
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://mayukhbagchi.com/sitemap.xml
+
+# Allow access to all important directories
+Allow: /api/
+Allow: /public/
+
+# Allow image assets
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.webp
+Allow: /*.svg
+
+# Allow CSS and JavaScript
+Allow: /*.css
+Allow: /*.js
+
+# Block access to sensitive directories
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/admin/
+
+# Block Next.js internal files
+Disallow: /*.json
+Disallow: /_next/
+Disallow: /_app/
+
+# Allow Googlebot specific access
+User-agent: Googlebot
+Allow: /
+Allow: /*.js
+Allow: /*.css
+
+# Allow Bingbot
+User-agent: Bingbot
+Allow: /
+
+# Allow social media crawlers
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
