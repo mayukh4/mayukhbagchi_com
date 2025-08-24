@@ -59,7 +59,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 type VLBIBackgroundProps = {
-  mode?: "default" | "contact" | "travel" | "about" | "outreach";
+  mode?: "default" | "contact" | "travel" | "about" | "outreach" | "research";
   targetSelector?: string;
   // When true, suppresses rendering of the black hole while preserving the rest of the default scene
   hideBlackHole?: boolean;
@@ -112,7 +112,8 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       lon: -30, // starting longitude
       alt: 1.03, // slightly above Earth surface
       lonOffsetDeg: 0, // additional longitudinal drift relative to Earth
-      dlonDegPerMs: mode === "contact" ? 0.006 : 0.003, // faster in contact mode for quicker reappearance
+      dlonDegPerMs:
+        mode === "contact" ? 0.006 : mode === "research" ? 0.0016 : 0.003, // slow drift for research mode
     };
 
     // Realistic radio galaxies - proper double-lobe structure
@@ -535,7 +536,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       const dt = Math.min(64, now - tPrev);
       tPrev = now;
       // Earth rotation
-      const rotSpeed = mode === "about" ? 0.00016 : 0.00025; // slower on about page
+      const rotSpeed = mode === "about" ? 0.00016 : mode === "research" ? 0.00014 : 0.00025; // slowest on about, slower on research
       rot += dt * rotSpeed;
       bh.phase += dt * 0.0002; // Black hole phase
       balloon.lonOffsetDeg += dt * balloon.dlonDegPerMs; // Balloon drift
@@ -564,7 +565,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
 
       // Stars with parallax (clip out black hole only if it will be drawn)
       ctx.save();
-      if (mode === "default" && !hideBlackHole) {
+      if ((mode === "default" || mode === "research") && !hideBlackHole) {
         ctx.beginPath();
         ctx.rect(0, 0, w, h);
         ctx.arc(bx, by, holeClipR, 0, Math.PI * 2);
@@ -584,7 +585,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       // Radio galaxies with slight parallax (skip for outreach for a cleaner star/constellation background)
       if (mode !== "outreach") {
         ctx.save();
-        if (mode === "default" && !hideBlackHole) {
+        if ((mode === "default" || mode === "research") && !hideBlackHole) {
           ctx.beginPath();
           ctx.rect(0, 0, w, h);
           ctx.arc(bx, by, holeClipR, 0, Math.PI * 2);
@@ -603,8 +604,8 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         drawConstellations(ctx, w, h, driftX, driftY);
       }
 
-      // Black hole - only draw in default mode (skip for others for perf and clarity)
-      if (mode === "default" && !hideBlackHole) {
+      // Black hole - draw in default and research modes
+      if ((mode === "default" || mode === "research") && !hideBlackHole) {
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         // Accretion disk with much brighter, more vivid colors
@@ -656,9 +657,14 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         return;
       }
       const isAbout = mode === "about";
-      const cx = isAbout ? w * 0.5 : w * (mode === "contact" ? 0.7 : 0.87);
-      const cy = isAbout ? h * 0.55 : h * (mode === "contact" ? 0.72 : 0.85);
-      const radius = isAbout ? Math.min(w, h) * 0.46 : Math.min(w, h) * (mode === "contact" ? 0.52 : 0.44);
+      const isResearch = mode === "research";
+      const cx = isAbout || isResearch ? w * 0.5 : w * (mode === "contact" ? 0.7 : 0.87);
+      const cy = isAbout || isResearch ? h * 0.55 : h * (mode === "contact" ? 0.72 : 0.85);
+      const radius = isAbout
+        ? Math.min(w, h) * 0.46
+        : isResearch
+          ? Math.min(w, h) * 0.6
+          : Math.min(w, h) * (mode === "contact" ? 0.52 : 0.44);
 
       // Earth outline
       ctx.strokeStyle = isAbout ? "rgba(140, 220, 255, 0.55)" : "rgba(100, 200, 255, 0.25)";
@@ -851,7 +857,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
 
         // Draw balloon icon on top of stations and baselines
         if (pBalloon.front) {
-          const sizeFactor = mode === "contact" ? 0.08 : 0.12;
+          const sizeFactor = mode === "contact" ? 0.08 : isResearch ? 0.18 : 0.12;
           const balloonSize = Math.max(12, radius * sizeFactor);
           drawBalloonIcon(pBalloon.x, pBalloon.y - radius * 0.02, balloonSize, now);
         }

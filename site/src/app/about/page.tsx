@@ -43,7 +43,7 @@ export default function AboutPage() {
         {/* Copy */}
         <div className="md:col-span-3 space-y-6">
           <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">About me</h1>
-          <div className="space-y-5 text-foreground/90 max-w-2xl leading-relaxed text-[0.98rem] md:text-base">
+          <div className="space-y-5 text-foreground/90 max-w-2xl leading-relaxed text-[0.98rem] md:text-base rounded-2xl border border-[hsl(var(--muted)/0.18)] bg-[hsl(var(--background)/0.03)] hover:bg-[hsl(var(--background)/0.06)] transition-colors p-5 md:p-6">
             <p>
               Hello, I’m Mayukh (ময়ূখ) — a PhD candidate in Astronomy at Queen’s University. After a bachelor’s in Electrical Engineering, I moved to Canada to pursue a lifelong dream: doing astronomy.
             </p>

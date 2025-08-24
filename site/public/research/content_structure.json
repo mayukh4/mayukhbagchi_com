@@ -1,0 +1,207 @@
+{
+    "page": {
+      "title": "Research - Mayukh Bagchi",
+      "type": "research_page",
+      "sections": [
+        {
+          "type": "header",
+          "level": 1,
+          "content": "Research"
+        },
+        {
+          "type": "introduction",
+          "content": [
+            {
+              "type": "paragraph",
+              "text": "Check out my master's thesis :"
+            },
+            {
+              "type": "paragraph",
+              "text": "This research highlights the importance of mm and sub-mm wavelengths in studying star formation and supermassive black hole surroundings. Atmospheric impact complicates this by absorbing and scattering radiation, adding noise to observations. Testing sub-mm polarized dust emission as a means to trace magnetic fields in cores suggests a link between bright 70 um sources in cores and heightened polarized intensity signals, potentially indicating a connection between luminous internal objects and field study potential. To achieve this, sensitive instruments like the CCAT's Prime-Cam require specific adjustments for atmospheric sensitivity. Moreover, the Balloon-borne VLBI Experiment (BVEX) aims for higher resolution, employing RFSoC boards for potential future high-frequency VLBI networks."
+            },
+            {
+              "type": "link",
+              "text": "[Click here to read it! ]",
+              "url": "https://hdl.handle.net/1974/32564",
+              "target": "_blank"
+            }
+          ]
+        },
+        {
+          "type": "research_project",
+          "id": "project_1",
+          "title": {
+            "type": "header",
+            "level": 2,
+            "number": "1.",
+            "content": "BVEX: Balloon Borne VLBI Experiment"
+          },
+          "content": [
+            {
+              "type": "image",
+              "src": "https://mayukhbagchi.com/wp-content/uploads/2023/03/BVEX-1024x576.png",
+              "alt": "BVEX Balloon Borne VLBI Experiment",
+              "width": 1024,
+              "height": 576
+            },
+            {
+              "type": "paragraph",
+              "text": "EHT already achieves an incredible angular resolution of ~40 μas using VLBI or very long baseline interferometry. This technique uses intercontinental baselines (~ 1000 km) combining some of the best mm/sub-mm radio telescopes to achieve this. However, at the current 230 GHz range, we can only push to a maximum angular resolution of to 22 μas before getting limited by the diameter of the Earth. To resolve more black holes and study compact extra-galactic star-forming cores we need to push to lower wavelengths. BVEX will be a 1m single dish balloon-borne radio telescope operating at K-band(22 GHz) capable of doing simultaneous VLBI observation with a ground-based telescope. The large ground dish will make up for the sensitivity required to observe our science targets. BVEX is a pathfinder experiment showing us we can successfully get interference fringes.",
+              "links": [
+                {
+                  "text": "EHT",
+                  "url": "https://eventhorizontelescope.org/",
+                  "target": "_blank"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "text": "I am responsible for designing the IF stage, backend readout electronics, timing reference, and position reconstruction. I will be using the latest generation RFSoC 4X2 FPGAs to achieve a high speed data readout system for this project."
+            }
+          ]
+        },
+        {
+          "type": "research_project",
+          "id": "project_2",
+          "title": {
+            "type": "header",
+            "level": 2,
+            "number": "2.",
+            "content": "Polarization properties of dense cores, do large scale Magnetic fields shape them?"
+          },
+          "content": [
+            {
+              "type": "image",
+              "src": "https://mayukhbagchi.com/wp-content/uploads/2023/03/Polarization_TMC.png",
+              "alt": "Polarization properties of dense cores"
+            },
+            {
+              "type": "image",
+              "src": "https://mayukhbagchi.com/wp-content/uploads/2023/03/BVEX-1-1024x576.png",
+              "alt": "James Clark Maxwell Telescope",
+              "caption": "James Clark Maxwell Telescope",
+              "width": 1024,
+              "height": 576
+            },
+            {
+              "type": "paragraph",
+              "text": "Magnetic fields are thought to play a crucial role in star formation as they provide support against the gravitational collapse of dense clumps of gas called cores which are precursors to individual stellar systems. Polarized thermal radiation from aligned dust grains is an essential tool for studying the magnetic fields within the star-forming cores. However, does the aligning radiation from the local field get attenuated as there is a lot of dust surrounding the dense cores?"
+            },
+            {
+              "type": "paragraph",
+              "text": "So the main question is, \"are the dust grains aligned within the cores?\" If they are then polarization maps can be used to study the core-scale fields."
+            },
+            {
+              "type": "paragraph",
+              "text": "Also studying the various stages of core evolution would tell us how well the dust grains are aligned at each of the stages, (e.g the central luminous object in a protostar could provide the necessary alignment torque.)"
+            },
+            {
+              "type": "paragraph",
+              "text": "I analyze data from telescopes like JCMT and apply stacking analysis to stack the filtered snapshots of these individual stellar cores to improve the signal-to-noise. The goal is to apply this method to higher-resolution(5 arc-sec) data from upcoming surveys like TolTEC Fields in Filaments.",
+              "links": [
+                {
+                  "text": "JCMT",
+                  "url": "https://www.eaobservatory.org/jcmt/",
+                  "target": "_blank"
+                },
+                {
+                  "text": "TolTEC Fields in Filaments.",
+                  "url": "http://toltec.astro.umass.edu/science_bfields.php",
+                  "target": "_blank"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "research_project",
+          "id": "project_3",
+          "title": {
+            "type": "header",
+            "level": 2,
+            "number": "3.",
+            "content": "CCAT Prime Atmospheric Characterization and Tone Tracking"
+          },
+          "content": [
+            {
+              "type": "image",
+              "src": "https://mayukhbagchi.com/wp-content/uploads/2023/03/BVEX-3-1024x576.png",
+              "alt": "Atmospheric modelling CCAT-p",
+              "caption": "Atmospheric modelling CCAT-p",
+              "width": 1024,
+              "height": 576
+            },
+            {
+              "type": "image",
+              "src": "https://mayukhbagchi.com/wp-content/uploads/2023/03/BVEX-2-1024x576.png",
+              "alt": "MKIDS and RFSoC for tone tracking",
+              "caption": "MKIDS and RFSoC for tone tracking",
+              "width": 1024,
+              "height": 576
+            },
+            {
+              "type": "paragraph",
+              "text": "The CCAT Prime is an upcoming 6m diameter telescope being built at 5600 m on Cerro Chajnantor in the high Atacama Desert of northern Chile. The extremely dry conditions allow excellent mm and sub-mm observations. The Prime CAM camera on this telescope will allow it to operate from 1.1 mm, 0.85 mm, and 0.35 mm. Prime CAM could use the upcoming MKID detectors which have a much easier readout system than TES detectors. Incoming photons of light from an astrophysical source will break the cooper pairs in these superconducting detectors causing a shift in the Inductance. By sending a probe tone into the array we can then track the individual shift in the tone allowing us to then calculate the strength of the signal.",
+              "links": [
+                {
+                  "text": "CCAT Prime",
+                  "url": "https://www.ccatobservatory.org/",
+                  "target": "_blank"
+                },
+                {
+                  "text": "MKID detectors",
+                  "url": "https://web.physics.ucsb.edu/~bmazin/mkids.html",
+                  "target": "_blank"
+                },
+                {
+                  "text": "cooper pairs",
+                  "url": "https://en.wikipedia.org/wiki/Cooper_pair",
+                  "target": "_blank"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "structure_type": "academic_research_page",
+        "total_projects": 3,
+        "has_thesis_link": true,
+        "image_count": 5,
+        "external_links": 6,
+        "content_themes": [
+          "radio_astronomy",
+          "vlbi",
+          "magnetic_fields",
+          "star_formation",
+          "atmospheric_modeling",
+          "detector_technology"
+        ]
+      }
+    },
+    "instructions_for_replication": {
+      "layout_guidance": {
+        "structure": "Single column layout with clear section breaks",
+        "heading_hierarchy": "H1 for main title, H2 for project titles with numbering",
+        "content_flow": "Introduction paragraph → thesis link → numbered research projects",
+        "image_placement": "Images should be prominently displayed within each project section",
+        "link_handling": "External links should open in new tabs/windows"
+      },
+      "content_order": [
+        "Page title",
+        "Introduction paragraph about thesis research",
+        "Thesis link",
+        "Project 1: BVEX with image and description",
+        "Project 2: Polarization with two images and description",
+        "Project 3: CCAT Prime with two images and description"
+      ],
+      "semantic_elements": {
+        "main_container": "Main content area",
+        "project_sections": "Distinct sections for each research project",
+        "image_containers": "Responsive image containers with captions where specified",
+        "link_styling": "External links should be clearly identifiable",
+        "text_formatting": "Preserve paragraph breaks and inline links"
+      }
+    }
+  }
