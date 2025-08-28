@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import VLBIBackground from '@/components/vlbi-background';
 import IndieCard from '@/components/indie-card';
+import TelescopeCarousel from '@/components/telescope-carousel';
 
 export const metadata: Metadata = {
   title: "About Me",
@@ -26,18 +26,9 @@ export default function AboutPage() {
     <div className="relative min-h-[calc(100vh-8rem)]">
       <VLBIBackground mode="about" hideBlackHole />
       <section className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 items-start">
-        {/* Single hero photo (no cropping) */}
+        {/* Beautiful telescope carousel */}
         <div className="md:col-span-2">
-          <div className="relative w-full h-[40vh] md:h-[64vh] rounded-2xl overflow-hidden border border-[hsl(var(--muted)/0.35)] shadow-2xl bg-[hsl(var(--background)/0.2)]/80">
-            <Image
-              src="/about_me/about_me_Mayukh_Bagchi.webp"
-              alt="Mayukh Bagchi at radio observatories"
-              fill
-              sizes="(min-width: 768px) 40vw, 100vw"
-              className="object-contain select-none"
-              priority
-            />
-          </div>
+          <TelescopeCarousel />
         </div>
 
         {/* Copy */}

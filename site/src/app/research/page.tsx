@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ZoomImage } from "@/components/zoom-image";
 import Link from "next/link";
 import VLBIBackground from "@/components/vlbi-background";
+import BVEXCarousel from "@/components/bvex-carousel";
 
 export const metadata: Metadata = {
   title: "Research",
@@ -120,15 +121,7 @@ export default function ResearchPage() {
             <p className="text-foreground/70">BVEX — Balloon‑borne VLBI Experiment</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
-            <div className="relative rounded-2xl overflow-hidden border border-[hsl(var(--muted)/0.18)]">
-              <Image
-                src="/research/BVEX.webp"
-                width={1400}
-                height={900}
-                alt="BVEX: Balloon‑borne VLBI Experiment"
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <BVEXCarousel />
             <div className="relative rounded-2xl border p-6 md:p-7 flex items-center border-[hsl(var(--muted)/0.18)] bg-[hsl(var(--background)/0.03)] hover:bg-[hsl(var(--background)/0.06)] transition-colors">
               <div>
                 <p className="text-foreground/85">
@@ -141,6 +134,21 @@ export default function ResearchPage() {
                   <li>Timing reference and position reconstruction</li>
                   <li>High‑speed RFSoC 4x2 FPGA data path</li>
                 </ul>
+                <div className="mt-6">
+                  <Link
+                    href="https://www.queensu.ca/bvex/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[hsl(var(--muted)/0.22)] bg-[hsl(var(--background)/0.06)] px-4 py-2 text-sm hover:bg-[hsl(var(--background)/0.1)] transition-colors"
+                  >
+                    <svg aria-hidden className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15,3 21,3 21,9"/>
+                      <line x1="10" x2="21" y1="14" y2="3"/>
+                    </svg>
+                    Official BVEX Website
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
