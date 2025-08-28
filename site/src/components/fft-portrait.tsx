@@ -76,73 +76,96 @@ function computeFFTMag(imgData: ImageData): ImageData {
 export function FFTPortrait() {
   const [isHover, setIsHover] = useState(false);
   const [computed, setComputed] = useState(false);
+  const [isPrecomputing, setIsPrecomputing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
 
   // Cache the FFT as an offscreen canvas for high-quality scaling
   const offscreenRef = useRef<HTMLCanvasElement | null>(null);
 
+  // Pre-compute FFT during idle time for better performance
   useEffect(() => {
-    if (!isHover || computed) return;
+    if (computed || isPrecomputing) return;
+    
+    const precomputeFFT = () => {
+      setIsPrecomputing(true);
+      
+      const img = new window.Image();
+      img.onload = () => {
+        const w = Math.min(512, img.naturalWidth);
+        const h = Math.min(512, img.naturalHeight);
+
+        const work = document.createElement("canvas");
+        work.width = w;
+        work.height = h;
+        const wctx = work.getContext("2d", { willReadFrequently: true });
+        if (!wctx) {
+          setIsPrecomputing(false);
+          return;
+        }
+        
+        wctx.drawImage(img, 0, 0, w, h);
+        const imgData = wctx.getImageData(0, 0, w, h);
+
+        const fftImg = computeFFTMag(imgData);
+        const fftCanvas = document.createElement("canvas");
+        fftCanvas.width = fftImg.width;
+        fftCanvas.height = fftImg.height;
+        const fctx = fftCanvas.getContext("2d")!;
+        fctx.putImageData(fftImg, 0, 0);
+        offscreenRef.current = fftCanvas;
+        
+        setComputed(true);
+        setIsPrecomputing(false);
+      };
+      img.src = "/homepage.webp";
+    };
+
+    // Use requestIdleCallback for non-blocking computation
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(precomputeFFT, { timeout: 2000 });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(precomputeFFT, 1000);
+    }
+  }, [computed, isPrecomputing]);
+
+  useEffect(() => {
+    if (!isHover || !computed || !offscreenRef.current) return;
+    
     const overlay = canvasRef.current;
-    if (!overlay) return;
+    const frame = frameRef.current;
+    if (!overlay || !frame) return;
 
     const ctxOverlay = overlay.getContext("2d");
     if (!ctxOverlay) return;
 
-    const img = new window.Image();
-    img.onload = () => {
-      const w = Math.min(512, img.naturalWidth);
-      const h = Math.min(512, img.naturalHeight);
+    // Use pre-computed FFT data for instant display
+    const drawToFit = () => {
+      if (!frame || !offscreenRef.current) return;
+      const targetW = frame.clientWidth;
+      const targetH = frame.clientHeight;
+      overlay.width = targetW;
+      overlay.height = targetH;
 
-      // Prepare work canvas
-      const work = document.createElement("canvas");
-      work.width = w;
-      work.height = h;
-      const wctx = work.getContext("2d", { willReadFrequently: true });
-      if (!wctx) return;
-      wctx.drawImage(img, 0, 0, w, h);
-      const imgData = wctx.getImageData(0, 0, w, h);
-
-      // Compute square FFT image
-      const fftImg = computeFFTMag(imgData);
-      const fftCanvas = document.createElement("canvas");
-      fftCanvas.width = fftImg.width;
-      fftCanvas.height = fftImg.height;
-      const fctx = fftCanvas.getContext("2d")!;
-      fctx.putImageData(fftImg, 0, 0);
-      offscreenRef.current = fftCanvas;
-      setComputed(true);
-
-      // Initial render to fit overlay
-      const drawToFit = () => {
-        const frame = frameRef.current;
-        if (!frame || !offscreenRef.current) return;
-        const targetW = frame.clientWidth;
-        const targetH = frame.clientHeight;
-        overlay.width = targetW;
-        overlay.height = targetH;
-
-        const src = offscreenRef.current;
-        const sW = src.width;
-        const sH = src.height;
-        const scale = Math.max(targetW / sW, targetH / sH);
-        const cropW = Math.min(sW, targetW / scale);
-        const cropH = Math.min(sH, targetH / scale);
-        const sx = (sW - cropW) / 2;
-        const sy = (sH - cropH) / 2;
-        ctxOverlay.clearRect(0, 0, targetW, targetH);
-        ctxOverlay.drawImage(src, sx, sy, cropW, cropH, 0, 0, targetW, targetH);
-      };
-
-      drawToFit();
-
-      // Redraw on resize so it always covers the portrait area
-      const ro = new ResizeObserver(drawToFit);
-      if (frameRef.current) ro.observe(frameRef.current);
-      return () => ro.disconnect();
+      const src = offscreenRef.current;
+      const sW = src.width;
+      const sH = src.height;
+      const scale = Math.max(targetW / sW, targetH / sH);
+      const cropW = Math.min(sW, targetW / scale);
+      const cropH = Math.min(sH, targetH / scale);
+      const sx = (sW - cropW) / 2;
+      const sy = (sH - cropH) / 2;
+      ctxOverlay.clearRect(0, 0, targetW, targetH);
+      ctxOverlay.drawImage(src, sx, sy, cropW, cropH, 0, 0, targetW, targetH);
     };
-    img.src = "/homepage.webp";
+
+    drawToFit();
+
+    // Redraw on resize so it always covers the portrait area
+    const ro = new ResizeObserver(drawToFit);
+    if (frameRef.current) ro.observe(frameRef.current);
+    return () => ro.disconnect();
   }, [isHover, computed]);
 
   return (

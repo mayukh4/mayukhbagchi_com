@@ -88,6 +88,11 @@ export default function TelescopeCarousel() {
   return (
     <div 
       className="relative w-full h-[40vh] md:h-[64vh] rounded-2xl overflow-hidden border border-[hsl(var(--muted)/0.35)] shadow-2xl bg-[hsl(var(--background)/0.2)]/80 backdrop-blur-sm group focus-within:ring-2 focus-within:ring-accent/50"
+      style={{
+        willChange: isHovered ? 'transform' : 'auto',
+        contain: 'layout style paint',
+        isolation: 'isolate'
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       role="region"

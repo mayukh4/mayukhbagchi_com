@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ZoomImage } from "@/components/zoom-image";
 import Link from "next/link";
-import VLBIBackground from "@/components/vlbi-background";
+import dynamic from "next/dynamic";
 import BVEXCarousel from "@/components/bvex-carousel";
+
+// Lazy load VLBI background
+const VLBIBackground = dynamic(() => import("@/components/vlbi-background"), {
+  loading: () => null,
+});
 
 export const metadata: Metadata = {
   title: "Research",

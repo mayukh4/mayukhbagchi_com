@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
-import VLBIBackground from '@/components/vlbi-background';
+import dynamic from 'next/dynamic';
 import IndieCard from '@/components/indie-card';
 import TelescopeCarousel from '@/components/telescope-carousel';
+
+// Lazy load VLBI background (no SSR restriction for server components)
+const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
+  loading: () => null,
+});
 
 export const metadata: Metadata = {
   title: "About Me",

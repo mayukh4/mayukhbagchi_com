@@ -45,6 +45,11 @@ export default function BVEXCarousel() {
   return (
     <div 
       className="relative rounded-2xl overflow-hidden border border-[hsl(var(--muted)/0.18)] group cursor-pointer"
+      style={{
+        willChange: isHovered ? 'transform' : 'auto',
+        contain: 'layout style paint',
+        isolation: 'isolate'
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

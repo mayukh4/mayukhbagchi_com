@@ -67,7 +67,12 @@ export function TravelGlobe({ events }: Props) {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    // GPU-optimized canvas context
+    const ctx = canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+      willReadFrequently: false
+    }) as CanvasRenderingContext2D;
 
     // Lazy-load world outlines (TopoJSON 110m)
     (async () => {
@@ -90,14 +95,24 @@ export function TravelGlobe({ events }: Props) {
       }
     })();
 
+    // GPU-optimized settings for travel globe
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const maxGPUSize = 4096; // Safe GPU texture limit
+    
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
+      
+      // Limit canvas size for GPU efficiency
+      canvas.width = Math.min(Math.floor(w * dpr), maxGPUSize);
+      canvas.height = Math.min(Math.floor(h * dpr), maxGPUSize);
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
+      
+      // GPU isolation
+      canvas.style.contain = 'layout style paint';
+      canvas.style.isolation = 'isolate';
+      
       ctx.resetTransform();
       ctx.scale(dpr, dpr);
     };

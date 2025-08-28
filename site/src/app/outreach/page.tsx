@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
-import VLBIBackground from '@/components/vlbi-background';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import LatestVideos from '@/components/latest-videos';
 import YouTubeStatsCard from '@/components/youtube-stats-card';
+
+// Lazy load VLBI background
+const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
+  loading: () => null,
+});
 
 export const metadata: Metadata = {
   title: "Outreach",

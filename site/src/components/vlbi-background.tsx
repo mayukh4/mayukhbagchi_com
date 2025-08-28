@@ -72,26 +72,51 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // GPU-optimized settings
+    const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x for GPU efficiency
+    const maxGPUSize = 4096; // Safe GPU texture limit
+    
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
+      
+      // Limit canvas size to prevent GPU memory issues
+      canvas.width = Math.min(Math.floor(w * dpr), maxGPUSize);
+      canvas.height = Math.min(Math.floor(h * dpr), maxGPUSize);
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
+      
+      // GPU isolation CSS
+      canvas.style.contain = 'layout style paint';
+      canvas.style.isolation = 'isolate';
     };
     resize();
     window.addEventListener("resize", resize);
 
-    const ctx = canvas.getContext("2d")!;
+    // GPU-optimized canvas context
+    const ctx = canvas.getContext("2d", {
+      alpha: false,           // Removes alpha blending overhead
+      desynchronized: true,   // Reduces compositing overhead
+      willReadFrequently: false // Optimizes for write-heavy operations
+    })!;
     ctx.scale(dpr, dpr);
 
     const W = () => window.innerWidth;
     const H = () => window.innerHeight;
     
-    // Stars
-    const stars = Array.from({ length: 200 }, () => ({
+    // GPU-optimized gradient cache
+    const gradientCache = new Map<string, CanvasGradient>();
+    
+    const getGradient = (key: string, createFn: () => CanvasGradient): CanvasGradient => {
+      if (!gradientCache.has(key)) {
+        gradientCache.set(key, createFn());
+      }
+      return gradientCache.get(key)!;
+    };
+    
+    // Reduce stars for better performance during debugging
+    const starCount = mode === "outreach" ? 150 : 120; // Reduced from 200
+    const stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * W(),
       y: Math.random() * H(),
       r: Math.random() * 1.5 + 0.3,
@@ -126,7 +151,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
 
       const width = W();
       const height = H();
-      const target = 7;
+      const target = mode === "outreach" ? 0 : 4; // Reduced from 7, none for outreach
       const candidatesPerPoint = 50; // best-candidate sampling for uniform spread
 
       function isExcluded(x: number, y: number, pad: number) {
@@ -226,6 +251,42 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
     let rot = 0;
     const tilt = toRadians(18);
     let raf = 0;
+    
+    // Visibility-based animation control
+    let isVisible = true;
+    let thermalThrottleLevel = 0; // 0 = normal, 1 = reduced, 2 = minimal
+    let frameSkipCounter = 0;
+    
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+      if (isVisible) {
+        // Resume animation smoothly
+        tPrev = performance.now();
+        if (!raf) raf = requestAnimationFrame(frame);
+      } else {
+        // Pause animation to save resources
+        if (raf) {
+          cancelAnimationFrame(raf);
+          raf = 0;
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Thermal protection: monitor frame time and adjust quality
+    let frameTimeHistory: number[] = [];
+    const checkThermalThrottle = (frameTime: number) => {
+      frameTimeHistory.push(frameTime);
+      if (frameTimeHistory.length > 10) frameTimeHistory.shift();
+      
+      const avgFrameTime = frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length;
+      
+      if (avgFrameTime > 32) { // More than 32ms per frame
+        thermalThrottleLevel = Math.min(2, thermalThrottleLevel + 1);
+      } else if (avgFrameTime < 20 && thermalThrottleLevel > 0) {
+        thermalThrottleLevel = Math.max(0, thermalThrottleLevel - 1);
+      }
+    };
 
     // World outlines (used in about page)
     const geoDataRef: { current: { land: any | null; borders: any | null } } = { current: { land: null, borders: null } };
@@ -533,8 +594,31 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
     }
 
     function frame(now: number) {
+      const frameStart = performance.now();
+      
+      // Skip frame if page is not visible
+      if (!isVisible) return;
+      
+      // Thermal throttling: skip frames based on throttle level
+      if (thermalThrottleLevel > 0) {
+        frameSkipCounter++;
+        const skipRate = thermalThrottleLevel === 1 ? 2 : 3; // Skip every 2nd or 3rd frame
+        if (frameSkipCounter % skipRate !== 0) {
+          raf = requestAnimationFrame(frame);
+          return;
+        }
+      }
+      
       const dt = Math.min(64, now - tPrev);
       tPrev = now;
+      
+      // Emergency brake: limit frame rate if system is struggling
+      if (dt < 16) { // More than 60 FPS
+        setTimeout(() => {
+          if (raf) raf = requestAnimationFrame(frame);
+        }, 16 - dt);
+        return;
+      }
       // Earth rotation
       const rotSpeed = mode === "about" ? 0.00016 : mode === "research" ? 0.00014 : 0.00025; // slowest on about, slower on research
       rot += dt * rotSpeed;
@@ -608,8 +692,8 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       if ((mode === "default" || mode === "research") && !hideBlackHole) {
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
-        // Accretion disk with much brighter, more vivid colors
-        const steps = 300;
+        // Accretion disk with reduced complexity for better performance
+        const steps = 180; // Reduced from 300
         for (let ring = -8; ring <= 8; ring++) {
           const rr = br + ring * 2;
           for (let i = 0; i < steps; i++) {
@@ -903,6 +987,10 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         }
       }
 
+      // Monitor frame performance for thermal throttling
+      const frameEnd = performance.now();
+      checkThermalThrottle(frameEnd - frameStart);
+      
       raf = requestAnimationFrame(frame);
     }
     
@@ -911,6 +999,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("resize", reseedGalaxies);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       cancelAnimationFrame(raf);
     };
   }, [mode, targetSelector, hideBlackHole]);

@@ -79,4 +79,73 @@ body {
   opacity: 0.92;
 }
 
-/* (removed) edge-fade styles */
+/* GPU optimizations for VLBI canvas */
+.vlbi-canvas {
+  /* Force GPU layer but optimize it */
+  transform: translateZ(0);
+  will-change: auto; /* Only when animating */
+  
+  /* Prevent unnecessary repaints */
+  contain: layout style paint;
+  
+  /* Optimize compositing */
+  isolation: isolate;
+  
+  /* Reduce memory pressure */
+  image-rendering: optimizeSpeed;
+}
+
+/* For Retina displays - reduce pixel density impact */
+@media (-webkit-min-device-pixel-ratio: 2) {
+  .vlbi-canvas {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* Performance optimizations for all interactive elements */
+.group:hover * {
+  will-change: transform, opacity;
+}
+
+.group:not(:hover) * {
+  will-change: auto;
+}
+
+/* Optimize Framer Motion animations */
+[data-framer-motion] {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Optimize heavy visual elements */
+.carousel,
+.orbit-carousel,
+.image-zoom {
+  contain: layout style paint;
+  isolation: isolate;
+}
+
+/* Reduce paint on scroll */
+.scroll-optimized {
+  contain: layout style paint;
+  content-visibility: auto;
+}
+
+/* GPU optimization for images */
+img, video {
+  image-rendering: optimizeSpeed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable animations for users who prefer reduced motion */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .vlbi-canvas {
+    display: none;
+  }
+}

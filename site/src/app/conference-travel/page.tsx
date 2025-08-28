@@ -1,7 +1,16 @@
 import type { Metadata } from 'next';
-import TravelGlobe, { type TravelEvent } from '@/components/travel-globe';
-import VLBIBackground from '@/components/vlbi-background';
+import dynamic from 'next/dynamic';
+import { type TravelEvent } from '@/components/travel-globe';
 import data from '../../../conference-travel.json';
+
+// Lazy load heavy components for better performance
+const TravelGlobe = dynamic(() => import('@/components/travel-globe'), {
+  loading: () => <div className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-800" />,
+});
+
+const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
+  loading: () => null,
+});
 
 export const metadata: Metadata = {
   title: "Conference & Travel",

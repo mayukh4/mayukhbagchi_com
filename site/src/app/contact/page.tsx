@@ -21,8 +21,13 @@ export const metadata: Metadata = {
 };
 
 import Image from "next/image";
-import VLBIBackground from "@/components/vlbi-background";
+import dynamic from "next/dynamic";
 import { ContactForm } from "@/components/contact-form";
+
+// Lazy load VLBI background
+const VLBIBackground = dynamic(() => import("@/components/vlbi-background"), {
+  loading: () => null,
+});
 
 export default function ContactPage() {
   return (

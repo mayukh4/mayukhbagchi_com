@@ -2,7 +2,12 @@
 import { FFTPortrait } from "@/components/fft-portrait";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Youtube } from "lucide-react";
-import VLBIBackground from "@/components/vlbi-background";
+import dynamic from "next/dynamic";
+
+// Lazy load VLBI background for better initial load performance
+const VLBIBackground = dynamic(() => import("@/components/vlbi-background"), {
+  loading: () => null,
+});
 
 export default function Home() {
   return (
