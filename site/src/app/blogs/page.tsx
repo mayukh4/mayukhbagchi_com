@@ -25,6 +25,25 @@ export const metadata: Metadata = {
     title: "Astronomy & Astrophysics Blog - Mayukh Bagchi | PhD Researcher",
     description: "In-depth articles on astronomy, astrophysics, and space science research. Explore VLBI technology, black hole imaging, and cutting-edge astronomical discoveries.",
     type: "website",
+    url: "https://mayukhbagchi.com/blogs",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Astronomy & Astrophysics Blog - Mayukh Bagchi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Astronomy & Astrophysics Blog - Mayukh Bagchi",
+    description: "In-depth articles on astronomy, astrophysics, and space science research by PhD researcher.",
+    images: ["https://mayukhbagchi.com/og-image.jpg"],
+    creator: "@mayukh_bagchi",
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/blogs",
   },
 };
 

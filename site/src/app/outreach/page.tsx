@@ -26,6 +26,24 @@ export const metadata: Metadata = {
     title: "Outreach - Mayukh Bagchi | Science Communication & Public Engagement",
     description: "Public talks, workshops, and science communication by Mayukh Bagchi. Astronomy education and outreach for diverse audiences.",
     type: "website",
+    url: "https://mayukhbagchi.com/outreach",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/outreach/mayukh_bagchi_3MT_finalist.webp",
+        width: 1200,
+        height: 630,
+        alt: "Mayukh Bagchi - Science Communication & Outreach",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Outreach - Mayukh Bagchi | Science Communication",
+    description: "Public talks, workshops, and astronomy education by PhD researcher Mayukh Bagchi.",
+    images: ["https://mayukhbagchi.com/outreach/mayukh_bagchi_3MT_finalist.webp"],
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/outreach",
   },
 };
 

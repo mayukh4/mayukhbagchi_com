@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { type TravelEvent } from '@/components/travel-globe';
+import { TravelGlobeSkeleton, VLBIBackgroundSkeleton } from '@/components/loading-skeleton';
 import data from '../../../conference-travel.json';
 
 // Lazy load heavy components for better performance
 const TravelGlobe = dynamic(() => import('@/components/travel-globe'), {
-  loading: () => <div className="fixed inset-0 bg-gradient-to-b from-slate-900 to-slate-800" />,
+  loading: () => <TravelGlobeSkeleton />,
 });
 
 const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
-  loading: () => null,
+  loading: () => <VLBIBackgroundSkeleton />,
 });
 
 export const metadata: Metadata = {
@@ -29,6 +30,24 @@ export const metadata: Metadata = {
     title: "Conference & Travel - Mayukh Bagchi | Academic Presentations",
     description: "Academic conferences, research presentations, and scientific travel by Mayukh Bagchi. Talks, posters, and research collaborations worldwide.",
     type: "website",
+    url: "https://mayukhbagchi.com/conference-travel",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/conference_travel_pics/casca_2024.png",
+        width: 1200,
+        height: 630,
+        alt: "Conference Travel - Academic Presentations",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Conference & Travel - Mayukh Bagchi",
+    description: "Academic conferences and research presentations worldwide.",
+    images: ["https://mayukhbagchi.com/conference_travel_pics/casca_2024.png"],
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/conference-travel",
   },
 };
 

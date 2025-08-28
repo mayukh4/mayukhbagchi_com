@@ -4,7 +4,7 @@ import { supabaseAnon } from '@/lib/supabase';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://mayukhbagchi.com';
   
-  // Static pages
+  // Static pages with improved lastModified dates and better priorities
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -14,15 +14,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      lastModified: new Date('2024-01-15'), // Last significant update
       changeFrequency: 'monthly',
-      priority: 0.8,
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/research`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.9,
+      changeFrequency: 'weekly', // More frequent updates with ongoing research
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/blogs`,
@@ -32,26 +32,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
+      lastModified: new Date('2024-01-01'),
+      changeFrequency: 'yearly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/cv`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.6,
+      changeFrequency: 'monthly', // CV updates regularly
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/outreach`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
+      changeFrequency: 'weekly', // Regular outreach updates
+      priority: 0.6,
     },
     {
       url: `${baseUrl}/conference-travel`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: 'monthly', // Conference schedule updates
       priority: 0.5,
     },
   ];
@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const blogPages: MetadataRoute.Sitemap = (videoPosts || []).map((post) => ({
       url: `${baseUrl}/blogs/${post.slug}`,
       lastModified: new Date(post.updated_at || post.published_at),
-      changeFrequency: 'weekly' as const,
+      changeFrequency: 'monthly' as const, // Articles don't change frequently once published
       priority: 0.8,
     }));
 

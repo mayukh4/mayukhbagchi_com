@@ -2,6 +2,7 @@ import { supabaseAnon } from '@/lib/supabase';
 import type { Metadata } from 'next';
 import { formatViewCount } from '@/lib/youtube';
 import ReactMarkdown from 'react-markdown';
+import { generateArticleStructuredData, generateVideoStructuredData, generateBreadcrumbStructuredData } from '@/lib/structured-data';
 
 type Params = { params: { slug: string } };
 
@@ -42,16 +43,22 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       type: 'article',
       url: canonical,
       publishedTime: (data as any).published_at || undefined,
-      images: image ? [{ url: image, width: 1200, height: 630, alt: title }] : undefined,
+      modifiedTime: (data as any).updated_at || undefined,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: title }] : [{ url: "https://mayukhbagchi.com/og-image.jpg", width: 1200, height: 630, alt: title }],
       siteName: 'Mayukh Bagchi - Astronomy Research',
-      authors: ['Mayukh Bagchi']
+      authors: ['Mayukh Bagchi'],
+      section: 'Astronomy & Astrophysics',
+      tags: (data as any).tags || []
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: image ? [image] : undefined,
+      images: image ? [image] : ["https://mayukhbagchi.com/og-image.jpg"],
+      creator: '@mayukh_bagchi',
     },
+    authors: [{ name: 'Mayukh Bagchi', url: 'https://mayukhbagchi.com' }],
+    category: 'Astronomy & Astrophysics',
   };
 }
 
@@ -76,36 +83,44 @@ export default async function VideoPost({ params }: Params) {
 
   // Generate structured data: VideoObject if YouTube present, otherwise Article
   const isVideo = Boolean(post.youtube_id);
-  const structuredData = isVideo ? {
-    "@context": "https://schema.org",
-    "@type": "VideoObject",
-    "name": post.title,
-    "description": post.summary || post.seo_description,
-    "thumbnailUrl": post.hero_image || (post.youtube_id ? `https://i.ytimg.com/vi/${post.youtube_id}/maxresdefault.jpg` : undefined),
-    "uploadDate": post.youtube_published_at || post.published_at,
-    "duration": post.video_length_seconds ? `PT${post.video_length_seconds}S` : undefined,
-    "embedUrl": post.youtube_id ? `https://www.youtube.com/embed/${post.youtube_id}` : undefined,
-    "contentUrl": post.youtube_id ? `https://www.youtube.com/watch?v=${post.youtube_id}` : undefined,
-    "author": { "@type": "Person", "name": "Mayukh Bagchi", "url": "https://mayukhbagchi.com" },
-    "publisher": { "@type": "Organization", "name": "Mayukh Bagchi - Astronomy Research", "url": "https://mayukhbagchi.com", "logo": { "@type": "ImageObject", "url": "https://mayukhbagchi.com/logo.png" } },
-    "keywords": post.seo_keywords?.join(', ') || '',
-    "interactionStatistic": post.youtube_view_count ? { "@type": "InteractionCounter", "interactionType": "http://schema.org/WatchAction", "userInteractionCount": post.youtube_view_count } : undefined
-  } : {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": post.title,
-    "datePublished": post.published_at || post.created_at,
-    "image": post.hero_image ? [post.hero_image] : undefined,
-    "author": { "@type": "Person", "name": "Mayukh Bagchi" },
-    "publisher": { "@type": "Organization", "name": "Mayukh Bagchi - Astronomy Research", "logo": { "@type": "ImageObject", "url": "https://mayukhbagchi.com/logo.png" } },
-    "keywords": post.seo_keywords?.join(', ') || ''
-  };
+  const structuredData = isVideo ? generateVideoStructuredData({
+    title: post.title,
+    description: post.summary || post.seo_description || post.title,
+    url: `https://mayukhbagchi.com/blogs/${slug}`,
+    thumbnailUrl: post.hero_image || (post.youtube_id ? `https://i.ytimg.com/vi/${post.youtube_id}/maxresdefault.jpg` : undefined),
+    embedUrl: post.youtube_id ? `https://www.youtube.com/embed/${post.youtube_id}` : undefined,
+    contentUrl: post.youtube_id ? `https://www.youtube.com/watch?v=${post.youtube_id}` : undefined,
+    uploadDate: post.youtube_published_at || post.published_at,
+    duration: post.video_length_seconds ? `PT${post.video_length_seconds}S` : undefined,
+    viewCount: post.youtube_view_count || undefined,
+    keywords: post.seo_keywords || []
+  }) : generateArticleStructuredData({
+    title: post.title,
+    description: post.summary || post.seo_description || post.title,
+    url: `https://mayukhbagchi.com/blogs/${slug}`,
+    image: post.hero_image,
+    datePublished: post.published_at || post.created_at,
+    dateModified: post.updated_at,
+    keywords: post.seo_keywords || [],
+    wordCount: post.content_md ? post.content_md.split(' ').length : undefined,
+    readingTime: post.content_md ? `PT${Math.ceil(post.content_md.split(' ').length / 200)}M` : undefined
+  });
+
+  const breadcrumbStructuredData = generateBreadcrumbStructuredData([
+    { name: "Home", url: "https://mayukhbagchi.com" },
+    { name: "Blog", url: "https://mayukhbagchi.com/blogs" },
+    { name: post.title, url: `https://mayukhbagchi.com/blogs/${slug}` },
+  ]);
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
       />
       
       <article className="space-y-6">

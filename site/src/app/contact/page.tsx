@@ -17,6 +17,24 @@ export const metadata: Metadata = {
     title: "Contact Mayukh Bagchi - Astronomy Research Collaboration",
     description: "Get in touch with Mayukh Bagchi for research collaboration, speaking engagements, or astronomy consultation.",
     type: "website",
+    url: "https://mayukhbagchi.com/contact",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/contact_page_mayukh_bagchi.webp",
+        width: 1200,
+        height: 630,
+        alt: "Contact Mayukh Bagchi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Mayukh Bagchi - Research Collaboration",
+    description: "Get in touch for research collaboration, speaking engagements, or astronomy consultation.",
+    images: ["https://mayukhbagchi.com/contact_page_mayukh_bagchi.webp"],
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/contact",
   },
 };
 

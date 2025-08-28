@@ -22,13 +22,35 @@ export const metadata: Metadata = {
     "MKIDs",
     "CCAT Prime",
     "star formation polarization",
+    "BVEX project",
+    "radio astronomy instrumentation",
+    "photon ring detection",
+    "millimeter wave astronomy",
+    "balloon-borne astronomy"
   ],
   openGraph: {
-    title: "Research - Mayukh Bagchi",
+    title: "Research - Mayukh Bagchi | VLBI Instrumentation & Black Hole Imaging",
     description:
       "Balloon-borne VLBI, polarization studies of dense cores, and RFSoC tone tracking at CCAT Prime.",
     type: "website",
     url: "https://mayukhbagchi.com/research",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/research/BVEX/BVEX.webp",
+        width: 1200,
+        height: 630,
+        alt: "BVEX - Balloon-borne VLBI Experiment",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Research - Mayukh Bagchi | VLBI Instrumentation",
+    description: "Balloon-borne high-frequency VLBI instrumentation for black hole imaging and photon ring studies.",
+    images: ["https://mayukhbagchi.com/research/BVEX/BVEX.webp"],
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/research",
   },
 };
 

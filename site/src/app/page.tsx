@@ -1,12 +1,29 @@
-"use client";
 import { FFTPortrait } from "@/components/fft-portrait";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Youtube } from "lucide-react";
 import dynamic from "next/dynamic";
+import { VLBIBackgroundSkeleton } from "@/components/loading-skeleton";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  openGraph: {
+    images: [
+      {
+        url: "https://mayukhbagchi.com/homepage.webp",
+        width: 1200,
+        height: 630,
+        alt: "Mayukh Bagchi - PhD Astronomy Researcher",
+      },
+    ],
+  },
+  twitter: {
+    images: ["https://mayukhbagchi.com/homepage.webp"],
+  },
+};
 
 // Lazy load VLBI background for better initial load performance
 const VLBIBackground = dynamic(() => import("@/components/vlbi-background"), {
-  loading: () => null,
+  loading: () => <VLBIBackgroundSkeleton />,
 });
 
 export default function Home() {

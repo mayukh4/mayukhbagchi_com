@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import IndieCard from '@/components/indie-card';
 import TelescopeCarousel from '@/components/telescope-carousel';
+import { generateBreadcrumbStructuredData } from '@/lib/structured-data';
 
 // Lazy load VLBI background (no SSR restriction for server components)
 const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
@@ -17,20 +18,51 @@ export const metadata: Metadata = {
     "VLBI instrumentation PhD",
     "Queen's University astronomy",
     "black hole imaging researcher",
-    "balloon-borne VLBI expert"
+    "balloon-borne VLBI expert",
+    "electrical engineering to astronomy",
+    "Canadian astronomy PhD",
+    "radio astronomy researcher"
   ],
   openGraph: {
     title: "About Mayukh Bagchi - PhD Astronomy Researcher Profile",
     description: "Learn about Mayukh Bagchi's journey in astronomy, education, and expertise in VLBI instrumentation for black hole imaging.",
-    type: "website",
+    type: "profile",
+    url: "https://mayukhbagchi.com/about",
+    images: [
+      {
+        url: "https://mayukhbagchi.com/about_me/about_me_Mayukh_Bagchi.webp",
+        width: 1200,
+        height: 630,
+        alt: "Mayukh Bagchi - About Me",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Mayukh Bagchi - PhD Astronomy Researcher",
+    description: "Learn about Mayukh Bagchi's journey from electrical engineering to astronomy research.",
+    images: ["https://mayukhbagchi.com/about_me/about_me_Mayukh_Bagchi.webp"],
+  },
+  alternates: {
+    canonical: "https://mayukhbagchi.com/about",
   },
 };
 
 export default function AboutPage() {
+  const breadcrumbStructuredData = generateBreadcrumbStructuredData([
+    { name: "Home", url: "https://mayukhbagchi.com" },
+    { name: "About", url: "https://mayukhbagchi.com/about" },
+  ]);
+
   return (
-    <div className="relative min-h-[calc(100vh-8rem)]">
-      <VLBIBackground mode="about" hideBlackHole />
-      <section className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 items-start">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbStructuredData) }}
+      />
+      <div className="relative min-h-[calc(100vh-8rem)]">
+        <VLBIBackground mode="about" hideBlackHole />
+        <section className="relative z-10 grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 items-start">
         {/* Beautiful telescope carousel */}
         <div className="md:col-span-2">
           <TelescopeCarousel />
@@ -67,7 +99,8 @@ export default function AboutPage() {
           />
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 

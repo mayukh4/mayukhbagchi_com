@@ -4,17 +4,22 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { generateWebsiteStructuredData, generatePersonStructuredData } from "@/lib/structured-data";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
 });
 
 const chivoMono = Chivo_Mono({
   variable: "--font-chivo-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  fallback: ['ui-monospace', 'SFMono-Regular', 'Monaco', 'Consolas', 'monospace'],
 });
 
 export const metadata: Metadata = {
@@ -97,41 +102,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Mayukh Bagchi",
-    "jobTitle": "PhD Candidate in Astronomy & Astrophysics",
-    "description": "PhD candidate specializing in balloon-borne high-frequency VLBI instrumentation for black hole imaging and photon ring studies",
-    "url": "https://mayukhbagchi.com",
-    "sameAs": [
-      "https://github.com/mayukh4",
-      "https://www.linkedin.com/in/mayukh-bagchi/",
-      "https://www.youtube.com/@mayukh_bagchi",
-      "https://scholar.google.com/citations?user=mayukh_bagchi"
-    ],
-    "email": "mailto:mayukh.bagchi@queensu.ca",
-    "affiliation": {
-      "@type": "Organization",
-      "name": "Queen's University",
-      "url": "https://www.queensu.ca"
-    },
-    "hasOccupation": {
-      "@type": "Occupation",
-      "name": "PhD Candidate in Astronomy & Astrophysics",
-      "description": "Research in balloon-borne high-frequency VLBI instrumentation",
-      "skills": ["VLBI", "Radio Astronomy", "Black Hole Imaging", "Photon Rings", "Balloon-Borne Instrumentation"]
-    },
-    "knowsAbout": [
-      "Astronomy",
-      "Astrophysics",
-      "VLBI Instrumentation",
-      "Black Hole Imaging",
-      "Photon Rings",
-      "Radio Astronomy",
-      "High-Frequency VLBI"
-    ]
-  };
+  const websiteStructuredData = generateWebsiteStructuredData();
+  const personStructuredData = generatePersonStructuredData();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -141,7 +113,26 @@ export default function RootLayout({
         <meta name="theme-color" content="#0ea5e9" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personStructuredData) }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                    console.log('SW registered: ', registration);
+                  }).catch(function(registrationError) {
+                    console.log('SW registration failed: ', registrationError);
+                  });
+                });
+              }
+            `,
+          }}
         />
       </head>
       <body suppressHydrationWarning className={`${spaceGrotesk.variable} ${chivoMono.variable} antialiased min-h-screen font-sans`}>
