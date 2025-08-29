@@ -1,4 +1,4 @@
-import { FFTPortrait } from "@/components/fft-portrait";
+import { OptimizedPortrait } from "@/components/optimized-portrait";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Youtube } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -33,7 +33,7 @@ export default function Home() {
       <VLBIBackground />
       <section className="relative z-10 flex flex-col md:flex-row items-center md:items-center gap-10 md:gap-14 justify-center px-4">
         <div className="relative justify-self-center md:justify-self-start flex-shrink-0">
-          <FFTPortrait />
+          <OptimizedPortrait />
         </div>
         <div className="relative min-w-0 md:max-w-2xl self-center">
           <h1 className="font-sans text-5xl md:text-7xl font-semibold leading-[0.95] tracking-tight">Mayukh Bagchi</h1>

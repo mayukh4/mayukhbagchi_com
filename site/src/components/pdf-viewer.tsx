@@ -21,7 +21,7 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
     setIsMounted(true);
   }, []);
 
-  // Try to fetch PDF as blob for better browser compatibility
+  // Simplified PDF loading - just use direct file URL
   useEffect(() => {
     if (!isMounted) return;
 
@@ -30,24 +30,9 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
         setIsLoading(true);
         setHasError(false);
         
-        // Try API route first for better reliability in development
-        console.log('Fetching PDF from API route...');
-        let response = await fetch('/api/pdf/cv');
-        
-        // If API route fails, try direct file access
-        if (!response.ok) {
-          console.log('API route failed, trying direct access...');
-          response = await fetch(fileUrl);
-        }
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        setPdfSrc(url);
-        console.log('PDF loaded successfully, blob URL:', url);
+        // Just use the direct file URL - much simpler and more reliable
+        setPdfSrc(fileUrl);
+        console.log('PDF set to direct URL:', fileUrl);
       } catch (error) {
         console.error('Failed to load PDF:', error);
         setHasError(true);
@@ -56,14 +41,9 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
       }
     }
 
-    loadPdf();
-
-    // Cleanup blob URL on unmount
-    return () => {
-      if (pdfSrc) {
-        URL.revokeObjectURL(pdfSrc);
-      }
-    };
+    // Add a small delay to ensure smooth mounting
+    const timer = setTimeout(loadPdf, 100);
+    return () => clearTimeout(timer);
   }, [fileUrl, isMounted]);
 
   const zoomIn = () => setZoomPct((z) => Math.min(160, z + 10));
@@ -99,14 +79,14 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
 
   const iframeSrc = useMemo(() => {
     if (!pdfSrc) return null;
-    // Use blob URL with PDF viewer parameters
+    // Use direct URL with PDF viewer parameters
     return `${pdfSrc}#toolbar=0&navpanes=0&scrollbar=0`;
   }, [pdfSrc]);
 
   // We cannot zoom iframe content cross-origin. Simulate zoom by scaling iframe container.
   const scale = zoomPct / 100;
 
-  // SSR-safe loading state - always render this on server
+  // SSR-safe loading state - consistent rendering
   if (!isMounted || isLoading) {
     return (
       <div className="w-full">
@@ -114,22 +94,19 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
         <div className="sticky top-0 z-20 mb-3 flex items-center gap-2 rounded-xl border border-[hsl(var(--muted)/0.3)] bg-[hsl(var(--background)/0.6)]/80 backdrop-blur-xl px-3 py-2">
           <button 
             onClick={download} 
-            disabled={!isMounted}
-            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 opacity-50 cursor-not-allowed"
           >
             <Download size={16} /> Download
           </button>
           <button 
             onClick={openInNewTab} 
-            disabled={!isMounted}
-            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 opacity-50 cursor-not-allowed"
           >
             <ExternalLink size={16} /> Open
           </button>
           <button 
             onClick={printPdf} 
-            disabled={!isMounted}
-            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded border border-muted/40 px-2 py-1 text-sm hover:border-accent/60 opacity-50 cursor-not-allowed"
           >
             <Printer size={16} /> Print
           </button>
@@ -138,8 +115,7 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
             <button 
               onClick={zoomOut} 
               aria-label="Zoom out" 
-              disabled={!isMounted}
-              className="rounded border border-muted/40 p-1 hover:border-accent/60 disabled:opacity-50"
+              className="rounded border border-muted/40 p-1 hover:border-accent/60 opacity-50 cursor-not-allowed"
             >
               <ZoomOut size={16} />
             </button>
@@ -147,16 +123,14 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
             <button 
               onClick={zoomIn} 
               aria-label="Zoom in" 
-              disabled={!isMounted}
-              className="rounded border border-muted/40 p-1 hover:border-accent/60 disabled:opacity-50"
+              className="rounded border border-muted/40 p-1 hover:border-accent/60 opacity-50 cursor-not-allowed"
             >
               <ZoomIn size={16} />
             </button>
             <button 
               onClick={resetZoom} 
               aria-label="Reset zoom" 
-              disabled={!isMounted}
-              className="ml-1 rounded border border-muted/40 p-1 hover:border-accent/60 disabled:opacity-50"
+              className="ml-1 rounded border border-muted/40 p-1 hover:border-accent/60 opacity-50 cursor-not-allowed"
             >
               <RotateCcw size={16} />
             </button>
@@ -189,8 +163,7 @@ export default function PdfViewer({ fileUrl, initialZoomPct = 100 }: PdfViewerPr
           </a>
           <button 
             onClick={download} 
-            disabled={!isMounted}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-muted/40 px-3 py-2 disabled:opacity-50"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded border border-muted/40 px-3 py-2 opacity-50 cursor-not-allowed"
           >
             Download
           </button>

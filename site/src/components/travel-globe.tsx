@@ -120,7 +120,7 @@ export function TravelGlobe({ events }: Props) {
 
     let rotY = -toRadians(40); // initial to show N. America + Europe
     let rotX = toRadians(10);
-    let autoVel = 0.00008; // gentle auto rotation
+    let autoVel = 0.00005; // slower auto rotation for better performance
     let radiusScale = 0.9;
     let tilt = toRadians(18);
     let raf = 0;

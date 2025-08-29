@@ -1,4 +1,5 @@
-import type { Metadata } from 'next';
+"use client";
+
 import dynamic from 'next/dynamic';
 import { VLBIBackgroundSkeleton } from '@/components/loading-skeleton';
 
@@ -7,58 +8,22 @@ const VLBIBackground = dynamic(() => import('@/components/vlbi-background'), {
   loading: () => <VLBIBackgroundSkeleton />,
 });
 
-const PdfViewer = dynamic(() => import('@/components/pdf-viewer'), {
+// Lazy load the optimized PDF viewer to avoid hydration issues
+const OptimizedPdfViewer = dynamic(() => import('@/components/pdf-viewer-optimized'), {
+  ssr: false,
   loading: () => (
-    <div className="w-full mx-auto max-w-5xl rounded-2xl border border-[hsl(var(--muted)/0.22)] bg-[hsl(var(--background)/0.08)]/80 backdrop-blur-xl p-2 md:p-3 shadow-2xl">
-      <div className="flex items-center justify-center h-[calc(100vh-120px)] text-foreground/60">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full mx-auto mb-4"></div>
-          <p>Loading CV...</p>
-        </div>
+    <div className="mx-auto w-full max-w-6xl rounded-2xl border border-[hsl(var(--muted)/0.22)] bg-white shadow-2xl overflow-hidden">
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center space-y-4">
+        <div className="animate-spin w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full mx-auto"></div>
+        <p className="text-foreground/70">Loading CV...</p>
       </div>
     </div>
   ),
 });
 
-export const metadata: Metadata = {
-  title: "CV",
-  description: "Download Mayukh Bagchi's CV - PhD candidate in astronomy specializing in VLBI instrumentation, black hole imaging, and balloon-borne radio astronomy research.",
-  keywords: [
-    "Mayukh Bagchi CV",
-    "astronomy researcher CV",
-    "VLBI instrumentation resume",
-    "PhD astronomy CV",
-    "radio astronomy researcher profile",
-    "black hole imaging expert CV",
-    "academic CV astronomy",
-    "researcher resume download"
-  ],
-  openGraph: {
-    title: "CV - Mayukh Bagchi | PhD Astronomy Researcher",
-    description: "Download Mayukh Bagchi's CV - PhD candidate in astronomy specializing in VLBI instrumentation and black hole imaging research.",
-    type: "website",
-    url: "https://mayukhbagchi.com/cv",
-    images: [
-      {
-        url: "https://mayukhbagchi.com/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Mayukh Bagchi CV",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CV - Mayukh Bagchi | PhD Astronomy Researcher",
-    description: "Download academic CV - PhD candidate specializing in VLBI instrumentation and black hole imaging.",
-    images: ["https://mayukhbagchi.com/og-image.jpg"],
-  },
-  alternates: {
-    canonical: "https://mayukhbagchi.com/cv",
-  },
-};
-
 export default function CVPage() {
+  const fileUrl = "/cv/mayukh_bagchi_cv.pdf";
+
   return (
     <div className="relative min-h-[calc(100vh-8rem)]">
       <VLBIBackground hideBlackHole />
@@ -68,13 +33,9 @@ export default function CVPage() {
           <p className="mt-3 text-foreground/80 max-w-2xl">My CV — tuned to the right frequency.</p>
         </div>
 
-        {/* PDF Viewer */}
-        <div className="mt-2">
-          <PdfViewer fileUrl="/cv/mayukh_bagchi_cv.pdf" />
-        </div>
+        {/* Optimized PDF Viewer with better display and zoom controls */}
+        <OptimizedPdfViewer fileUrl={fileUrl} initialZoomPct={80} />
       </section>
     </div>
   );
 }
-
-

@@ -100,6 +100,10 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       willReadFrequently: false // Optimizes for write-heavy operations
     })!;
     ctx.scale(dpr, dpr);
+    
+    // Optimize for smoothness
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     const W = () => window.innerWidth;
     const H = () => window.innerHeight;
@@ -114,8 +118,8 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       return gradientCache.get(key)!;
     };
     
-    // Reduce stars for better performance during debugging
-    const starCount = mode === "outreach" ? 150 : 120; // Reduced from 200
+    // Optimized star count for performance
+    const starCount = mode === "outreach" ? 80 : 60; // Dramatically reduced for ultra-smooth Earth
     const stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * W(),
       y: Math.random() * H(),
@@ -141,8 +145,39 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         mode === "contact" ? 0.006 : mode === "research" ? 0.0016 : 0.003, // slow drift for research mode
     };
 
+    // Cache key for radio galaxies based on screen dimensions and mode (v6 for ultra-bright galaxies)
+    const getCacheKey = () => `radio_galaxies_v6_${Math.floor(W()/100)}_${Math.floor(H()/100)}_${mode}`;
+    
+    // Load cached galaxies from localStorage
+    function loadCachedGalaxies() {
+      if (typeof window === 'undefined') return null;
+      try {
+        const cached = localStorage.getItem(getCacheKey());
+        return cached ? JSON.parse(cached) : null;
+      } catch {
+        return null;
+      }
+    }
+    
+    // Save galaxies to localStorage
+    function saveGalaxiesToCache(galaxies: any[]) {
+      if (typeof window === 'undefined') return;
+      try {
+        localStorage.setItem(getCacheKey(), JSON.stringify(galaxies));
+      } catch {
+        // Ignore localStorage errors
+      }
+    }
+    
     // Realistic radio galaxies - proper double-lobe structure
     function createRadioGalaxies() {
+      // First try to load from cache
+      const cached = loadCachedGalaxies();
+      if (cached && cached.length > 0) {
+        console.log('Using cached radio galaxies');
+        return cached;
+      }
+      
       const galaxies: Array<{
         x: number; y: number; angle: number; coreSize: number; jetLength: number;
         jetWidth: number; lobeSize: number; brightness: number; jetAsymmetry: number;
@@ -151,8 +186,45 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
 
       const width = W();
       const height = H();
-      const target = mode === "outreach" ? 0 : 4; // Reduced from 7, none for outreach
-      const candidatesPerPoint = 50; // best-candidate sampling for uniform spread
+      
+      // ADD FIXED POSITIONED GALAXIES FIRST FOR MAXIMUM VISIBILITY
+      
+      // FIXED POSITION 1: Above the Earth (highly visible)
+      const earthX = width * 0.87;
+      const earthY = height * 0.85;
+      galaxies.push({
+        x: earthX,
+        y: earthY - height * 0.25, // Above Earth
+        angle: Math.random() * Math.PI,
+        coreSize: 2 + Math.random() * 2,
+        jetLength: 40 + Math.random() * 40,
+        jetWidth: 3 + Math.random() * 3,
+        lobeSize: 15 + Math.random() * 25,
+        brightness: 1.8 + Math.random() * 0.2, // Maximum brightness for visibility
+        jetAsymmetry: 0.7 + Math.random() * 0.3,
+        scale: 0.9 + Math.random() * 0.3,
+        hotspotIntensity: 0.8 + Math.random() * 0.2,
+      });
+      
+      // FIXED POSITION 2: Below the black hole (complementary position)
+      const blackHoleX = bh.x();
+      const blackHoleY = bh.y();
+      galaxies.push({
+        x: blackHoleX,
+        y: blackHoleY + height * 0.15, // Below black hole
+        angle: Math.random() * Math.PI,
+        coreSize: 2 + Math.random() * 2,
+        jetLength: 40 + Math.random() * 40,
+        jetWidth: 3 + Math.random() * 3,
+        lobeSize: 15 + Math.random() * 25,
+        brightness: 1.8 + Math.random() * 0.2, // Maximum brightness for visibility
+        jetAsymmetry: 0.7 + Math.random() * 0.3,
+        scale: 0.9 + Math.random() * 0.3,
+        hotspotIntensity: 0.8 + Math.random() * 0.2,
+      });
+      
+      const target = mode === "outreach" ? 0 : 6; // Reduced to 6 since we added 2 fixed ones (total 8)
+      const candidatesPerPoint = 50; // Restored higher quality since we only generate once
 
       function isExcluded(x: number, y: number, pad: number) {
         // Black hole exclusion
@@ -197,7 +269,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
             jetLength: 25 + Math.random() * 60,
             jetWidth: 2 + Math.random() * 4,
             lobeSize: 15 + Math.random() * 40,
-            brightness: 0.4 + Math.random() * 0.5,
+            brightness: 1.6 + Math.random() * 0.4, // Ultra-bright galaxies
             jetAsymmetry: 0.5 + Math.random() * 0.8,
             scale: 0.6 + Math.random() * 0.8,
             hotspotIntensity: 0.7 + Math.random() * 0.6,
@@ -226,7 +298,7 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
               jetLength: 25 + Math.random() * 60,
               jetWidth: 2 + Math.random() * 4,
               lobeSize: 15 + Math.random() * 40,
-              brightness: 0.4 + Math.random() * 0.5,
+              brightness: 1.6 + Math.random() * 0.4, // Ultra-bright galaxies
               jetAsymmetry: 0.5 + Math.random() * 0.8,
               scale: 0.6 + Math.random() * 0.8,
               hotspotIntensity: 0.7 + Math.random() * 0.6,
@@ -239,18 +311,33 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
 
         if (best) galaxies.push(best);
       }
+      
+      // Cache the generated galaxies for future use
+      console.log(`Generated and cached ${galaxies.length} radio galaxies`);
+      saveGalaxiesToCache(galaxies);
+      
       return galaxies;
     }
     
     let radioGalaxies = createRadioGalaxies();
     const reseedGalaxies = () => {
-      radioGalaxies = createRadioGalaxies();
+      // Only regenerate if no cached galaxies exist for the new size
+      const cached = loadCachedGalaxies();
+      if (!cached || cached.length === 0) {
+        radioGalaxies = createRadioGalaxies();
+      } else {
+        radioGalaxies = cached;
+      }
     };
     window.addEventListener("resize", reseedGalaxies);
     let tPrev = performance.now();
     let rot = 0;
     const tilt = toRadians(18);
     let raf = 0;
+    
+    // Ultra-smooth frame timing buffer
+    let frameBuffer: number[] = [];
+    const targetDt = 16.67; // 60fps target
     
     // Visibility-based animation control
     let isVisible = true;
@@ -281,9 +368,10 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       
       const avgFrameTime = frameTimeHistory.reduce((a, b) => a + b, 0) / frameTimeHistory.length;
       
-      if (avgFrameTime > 32) { // More than 32ms per frame
+      // Less aggressive thermal throttling
+      if (avgFrameTime > 50) { // More than 50ms per frame (very slow)
         thermalThrottleLevel = Math.min(2, thermalThrottleLevel + 1);
-      } else if (avgFrameTime < 20 && thermalThrottleLevel > 0) {
+      } else if (avgFrameTime < 30 && thermalThrottleLevel > 0) {
         thermalThrottleLevel = Math.max(0, thermalThrottleLevel - 1);
       }
     };
@@ -324,91 +412,61 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       
       // Radio astronomy false-color scheme: red = brightest, orange/yellow = medium, blue = faintest
       
-      // LOBES FIRST (large elliptical regions) - Classic radio galaxy double-lobe structure
+      // LOBES FIRST (large elliptical regions) - Simplified for performance
       const lobeDistance = jetLength + lobeSize * 0.4;
       
-      // Lobe 1 (main lobe)
+      // Lobe 1 (main lobe) - Simplified to 2 layers instead of 3
       ctx.save();
       ctx.translate(0, lobeDistance);
       
-      // Outer faint lobe emission (blue - faintest)
-      ctx.globalAlpha = brightness * 0.3;
-      const lobe1Outer = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * 1.4);
-      lobe1Outer.addColorStop(0, `rgba(100, 150, 255, ${brightness * 0.3})`); // Blue for faint
-      lobe1Outer.addColorStop(0.6, `rgba(80, 120, 200, ${brightness * 0.2})`);
-      lobe1Outer.addColorStop(1, 'rgba(60, 100, 150, 0)');
-      ctx.fillStyle = lobe1Outer;
+      // Combined lobe emission (ultra-bright for maximum visibility)
+      ctx.globalAlpha = 1.0; // Always maximum opacity
+      const lobe1 = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * 1.2);
+      lobe1.addColorStop(0, `rgba(255, 180, 120, 1.0)`); // Ultra-bright orange center
+      lobe1.addColorStop(0.5, `rgba(180, 150, 230, 0.9)`); // Ultra-bright blue middle
+      lobe1.addColorStop(1, 'rgba(80, 100, 150, 0)'); // Fade to transparent
+      ctx.fillStyle = lobe1;
       ctx.beginPath();
-      ctx.ellipse(0, 0, lobeSize * 1.4, lobeSize * 0.8, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, lobeSize * 1.2, lobeSize * 0.7, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Medium lobe emission (orange/yellow)
-      ctx.globalAlpha = brightness * 0.6;
-      const lobe1Med = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * 0.8);
-      lobe1Med.addColorStop(0, `rgba(255, 180, 80, ${brightness * 0.6})`); // Orange for medium
-      lobe1Med.addColorStop(0.5, `rgba(220, 140, 60, ${brightness * 0.4})`);
-      lobe1Med.addColorStop(1, `rgba(180, 100, 40, 0)`);
-      ctx.fillStyle = lobe1Med;
+      // Hotspot (ultra-bright)
+      ctx.globalAlpha = 1.0; // Maximum opacity
+      ctx.fillStyle = `rgba(255, 160, 160, 1.0)`;
       ctx.beginPath();
-      ctx.ellipse(0, 0, lobeSize * 0.8, lobeSize * 0.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Hotspot (bright red - where jet terminates)
-      ctx.globalAlpha = brightness * hotspotIntensity;
-      const hotspot1 = ctx.createRadialGradient(0, -lobeSize * 0.3, 0, 0, -lobeSize * 0.3, lobeSize * 0.2);
-      hotspot1.addColorStop(0, `rgba(255, 80, 80, ${brightness * hotspotIntensity})`); // Red for brightest
-      hotspot1.addColorStop(0.5, `rgba(255, 120, 60, ${brightness * hotspotIntensity * 0.7})`);
-      hotspot1.addColorStop(1, `rgba(200, 80, 40, 0)`);
-      ctx.fillStyle = hotspot1;
-      ctx.beginPath();
-      ctx.ellipse(0, -lobeSize * 0.3, lobeSize * 0.2, lobeSize * 0.15, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, -lobeSize * 0.3, lobeSize * 0.15, lobeSize * 0.1, 0, 0, Math.PI * 2);
       ctx.fill();
       
       ctx.restore();
       
-      // Lobe 2 (asymmetric - often fainter)
+      // Lobe 2 (asymmetric - simplified)
       ctx.save();
       ctx.translate(0, -lobeDistance);
       
-      // Outer faint lobe emission
-      ctx.globalAlpha = brightness * 0.3 * jetAsymmetry;
-      const lobe2Outer = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * 1.2 * jetAsymmetry);
-      lobe2Outer.addColorStop(0, `rgba(120, 160, 255, ${brightness * 0.3 * jetAsymmetry})`);
-      lobe2Outer.addColorStop(0.6, `rgba(100, 130, 200, ${brightness * 0.2 * jetAsymmetry})`);
-      lobe2Outer.addColorStop(1, 'rgba(80, 110, 150, 0)');
-      ctx.fillStyle = lobe2Outer;
+      // Simplified second lobe (ultra-bright)
+      ctx.globalAlpha = 1.0; // Always maximum opacity
+      const lobe2 = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * jetAsymmetry);
+      lobe2.addColorStop(0, `rgba(230, 170, 150, 1.0)`); // Ultra-bright
+      lobe2.addColorStop(0.6, `rgba(150, 160, 230, 0.8)`); // Ultra-bright
+      lobe2.addColorStop(1, 'rgba(80, 110, 150, 0)');
+      ctx.fillStyle = lobe2;
       ctx.beginPath();
-      ctx.ellipse(0, 0, lobeSize * 1.2 * jetAsymmetry, lobeSize * 0.7 * jetAsymmetry, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, lobeSize * jetAsymmetry, lobeSize * 0.6 * jetAsymmetry, 0, 0, Math.PI * 2);
       ctx.fill();
       
-      // Medium emission
-      ctx.globalAlpha = brightness * 0.5 * jetAsymmetry;
-      const lobe2Med = ctx.createRadialGradient(0, 0, 0, 0, 0, lobeSize * 0.6 * jetAsymmetry);
-      lobe2Med.addColorStop(0, `rgba(240, 160, 100, ${brightness * 0.5 * jetAsymmetry})`);
-      lobe2Med.addColorStop(0.5, `rgba(200, 120, 80, ${brightness * 0.3 * jetAsymmetry})`);
-      lobe2Med.addColorStop(1, `rgba(160, 80, 60, 0)`);
-      ctx.fillStyle = lobe2Med;
+      // Simplified hotspot 2 (ultra-bright)
+      ctx.globalAlpha = 1.0; // Maximum opacity
+      ctx.fillStyle = `rgba(255, 180, 180, 1.0)`;
       ctx.beginPath();
-      ctx.ellipse(0, 0, lobeSize * 0.6 * jetAsymmetry, lobeSize * 0.4 * jetAsymmetry, 0, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Hotspot 2 (often fainter)
-      ctx.globalAlpha = brightness * hotspotIntensity * jetAsymmetry * 0.8;
-      const hotspot2 = ctx.createRadialGradient(0, lobeSize * 0.3, 0, 0, lobeSize * 0.3, lobeSize * 0.15);
-      hotspot2.addColorStop(0, `rgba(255, 100, 100, ${brightness * hotspotIntensity * jetAsymmetry * 0.8})`);
-      hotspot2.addColorStop(0.5, `rgba(220, 140, 80, ${brightness * hotspotIntensity * jetAsymmetry * 0.6})`);
-      hotspot2.addColorStop(1, `rgba(180, 100, 60, 0)`);
-      ctx.fillStyle = hotspot2;
-      ctx.beginPath();
-      ctx.ellipse(0, lobeSize * 0.3, lobeSize * 0.15 * jetAsymmetry, lobeSize * 0.1 * jetAsymmetry, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, lobeSize * 0.3, lobeSize * 0.12, lobeSize * 0.08, 0, 0, Math.PI * 2);
       ctx.fill();
       
       ctx.restore();
       
-      // JETS (very thin, connecting core to lobes)
-      ctx.globalAlpha = brightness * 0.2; // Jets are usually very faint
-      ctx.strokeStyle = `rgba(150, 120, 200, ${brightness * 0.2})`;
-      ctx.lineWidth = jetWidth * 0.3; // Very thin
+      // JETS (very thin, connecting core to lobes) - ultra-visible
+      ctx.globalAlpha = 0.9; // Ultra-high opacity for jets
+      ctx.strokeStyle = `rgba(220, 200, 255, 0.9)`;
+      ctx.lineWidth = jetWidth * 0.6; // Even thicker for maximum visibility
       
       // Jet 1
       ctx.beginPath();
@@ -416,20 +474,20 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       ctx.lineTo(0, jetLength);
       ctx.stroke();
       
-      // Jet 2 (asymmetric)
-      ctx.globalAlpha = brightness * 0.2 * jetAsymmetry;
-      ctx.strokeStyle = `rgba(130, 100, 180, ${brightness * 0.2 * jetAsymmetry})`;
+      // Jet 2 (asymmetric) - ultra-bright
+      ctx.globalAlpha = 0.8; // Ultra-high opacity
+      ctx.strokeStyle = `rgba(200, 170, 250, 0.8)`;
       ctx.beginPath();
       ctx.moveTo(0, -coreSize);
       ctx.lineTo(0, -jetLength);
       ctx.stroke();
       
-      // CENTRAL CORE (AGN - very bright, compact)
-      ctx.globalAlpha = brightness * 0.9;
+      // CENTRAL CORE (AGN - very bright, compact) - ultra-bright
+      ctx.globalAlpha = 1.0; // Always maximum opacity
       const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreSize * 3);
-      coreGrad.addColorStop(0, `rgba(255, 255, 220, ${brightness * 0.9})`); // Bright white/yellow core
-      coreGrad.addColorStop(0.3, `rgba(255, 200, 100, ${brightness * 0.7})`);
-      coreGrad.addColorStop(0.7, `rgba(255, 150, 80, ${brightness * 0.4})`);
+      coreGrad.addColorStop(0, `rgba(255, 255, 240, 1.0)`); // Ultra-bright white core
+      coreGrad.addColorStop(0.3, `rgba(255, 220, 140, 0.9)`); // Ultra-bright
+      coreGrad.addColorStop(0.7, `rgba(255, 180, 120, 0.7)`); // Ultra-bright
       coreGrad.addColorStop(1, 'rgba(200, 100, 60, 0)');
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
@@ -599,30 +657,36 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       // Skip frame if page is not visible
       if (!isVisible) return;
       
-      // Thermal throttling: skip frames based on throttle level
-      if (thermalThrottleLevel > 0) {
-        frameSkipCounter++;
-        const skipRate = thermalThrottleLevel === 1 ? 2 : 3; // Skip every 2nd or 3rd frame
-        if (frameSkipCounter % skipRate !== 0) {
-          raf = requestAnimationFrame(frame);
-          return;
-        }
-      }
+      // Disabled thermal throttling for smooth Earth motion
+      // (Our other optimizations handle performance)
+      // if (thermalThrottleLevel > 1) {
+      //   frameSkipCounter++;
+      //   const skipRate = 2;
+      //   if (frameSkipCounter % skipRate !== 0) {
+      //     raf = requestAnimationFrame(frame);
+      //     return;
+      //   }
+      // }
       
-      const dt = Math.min(64, now - tPrev);
+      const rawDt = now - tPrev;
       tPrev = now;
       
-      // Emergency brake: limit frame rate if system is struggling
-      if (dt < 16) { // More than 60 FPS
-        setTimeout(() => {
-          if (raf) raf = requestAnimationFrame(frame);
-        }, 16 - dt);
-        return;
-      }
-      // Earth rotation
-      const rotSpeed = mode === "about" ? 0.00016 : mode === "research" ? 0.00014 : 0.00025; // slowest on about, slower on research
+      // Ultra-smooth frame timing with consistency buffer
+      frameBuffer.push(rawDt);
+      if (frameBuffer.length > 10) frameBuffer.shift();
+      
+      const avgDt = frameBuffer.length > 3 ? 
+        frameBuffer.reduce((a, b) => a + b, 0) / frameBuffer.length : rawDt;
+      
+      const dt = Math.min(4, Math.max(1, avgDt)); // Ultra-consistent time steps
+      
+      // NO FRAME LIMITING - Let it run at maximum smoothness
+      // The browser will naturally limit to display refresh rate (60fps/120fps etc.)
+      // This ensures the smoothest possible Earth rotation
+      // Earth rotation with extreme smoothness - faster for visual fluidity
+      const rotSpeed = mode === "about" ? 0.0005 : mode === "research" ? 0.0004 : 0.0006; // Much faster for smooth visual perception
       rot += dt * rotSpeed;
-      bh.phase += dt * 0.0002; // Black hole phase
+      bh.phase += dt * 0.0001; // Slower black hole animation
       balloon.lonOffsetDeg += dt * balloon.dlonDegPerMs; // Balloon drift
 
       const w = W();
@@ -636,9 +700,9 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
-      // Parallax effect
-      const driftX = Math.sin(now * 0.00005) * 15;
-      const driftY = Math.cos(now * 0.00003) * 12;
+      // Ultra-minimal parallax for maximum smoothness
+      const driftX = Math.sin(now * 0.00001) * 8; // Ultra-slow parallax
+      const driftY = Math.cos(now * 0.000008) * 6;
 
       // Compute black hole screen position early for clipping masks
       const bx = bh.x() + driftX * 0.4;
@@ -692,20 +756,20 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       if ((mode === "default" || mode === "research") && !hideBlackHole) {
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
-        // Accretion disk with reduced complexity for better performance
-        const steps = 180; // Reduced from 300
-        for (let ring = -8; ring <= 8; ring++) {
-          const rr = br + ring * 2;
+        // Highly optimized accretion disk - reduced from 3060 to 540 draw calls
+        const steps = 60; // Dramatically reduced from 180
+        for (let ring = -4; ring <= 4; ring++) { // Reduced from -8 to 8
+          const rr = br + ring * 3; // Slightly larger spacing
           for (let i = 0; i < steps; i++) {
             const ang = (i / steps) * Math.PI * 2;
-            const intensity = Math.max(0, Math.cos(ang - bh.phase + ring * 0.1));
-            const temp = 0.4 + intensity * 0.6; // Temperature variation
+            const intensity = Math.max(0, Math.cos(ang - bh.phase + ring * 0.15));
+            const temp = 0.4 + intensity * 0.6;
             const rCol = Math.round(255 * Math.min(1, temp * 1.4));
             const gCol = Math.round(255 * Math.max(0, temp - 0.2) * 1.6);
             const bCol = Math.round(255 * Math.max(0, temp - 0.6) * 2.5);
-            const alpha = 0.22 + 0.48 * Math.pow(intensity, 1.5) * (1 - Math.abs(ring) / 12);
+            const alpha = 0.3 + 0.5 * Math.pow(intensity, 1.2) * (1 - Math.abs(ring) / 6);
             ctx.strokeStyle = `rgba(${rCol},${gCol},${bCol},${alpha})`;
-            ctx.lineWidth = 2.4;
+            ctx.lineWidth = 3.0; // Slightly thicker to compensate for fewer segments
             ctx.beginPath();
             ctx.arc(bx, by, rr, ang, ang + (Math.PI * 2) / steps);
             ctx.stroke();
@@ -775,18 +839,18 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
           .rotate([-(rot * 180) / Math.PI, -((tilt) * 180) / Math.PI, 0]);
         const path = geoPath(proj).context(ctx as any);
 
-        // Land fill
+        // Simplified land fill for smoother performance
         ctx.save();
-        ctx.fillStyle = "rgba(60, 140, 180, 0.32)";
+        ctx.fillStyle = "rgba(60, 140, 180, 0.25)";
         ctx.beginPath();
         path(geoDataRef.current.land as any);
         ctx.fill();
         ctx.restore();
 
-        // Country borders
+        // Simplified country borders for smoother performance
         ctx.save();
-        ctx.strokeStyle = "rgba(140, 210, 255, 0.6)";
-        ctx.lineWidth = 0.7;
+        ctx.strokeStyle = "rgba(140, 210, 255, 0.4)";
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         path(geoDataRef.current.borders as any);
         ctx.stroke();
@@ -833,11 +897,11 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
       ctx.strokeStyle = isAbout ? "rgba(140, 210, 255, 0.45)" : "rgba(100, 200, 255, 0.16)";
       ctx.lineWidth = isAbout ? 1.0 : 0.7;
 
-      // Parallels (latitude)
+      // Parallels (latitude) with maximum resolution for ultra-smooth rotation
       for (let lat = -60; lat <= 60; lat += 30) {
         ctx.beginPath();
         let started = false;
-        for (let lon = -180; lon <= 180; lon += 6) {
+        for (let lon = -180; lon <= 180; lon += 0.5) { // Extreme resolution - half-degree steps
           let v = latLonToVec3(lat, lon);
           v = rotateY(v, rot);
           v = rotateX(v, tilt);
@@ -854,11 +918,11 @@ export default function VLBIBackground({ mode = "default", targetSelector, hideB
         if (started) ctx.stroke();
       }
 
-      // Meridians (longitude)
+      // Meridians (longitude) with maximum resolution for smoother rotation
       for (let lon = -150; lon <= 150; lon += 30) {
         ctx.beginPath();
         let started = false;
-        for (let lat = -90; lat <= 90; lat += 6) {
+        for (let lat = -90; lat <= 90; lat += 0.5) { // Extreme resolution - half-degree steps
           let v = latLonToVec3(lat, lon);
           v = rotateY(v, rot);
           v = rotateX(v, tilt);
